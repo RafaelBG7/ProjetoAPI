@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Cadastro de Professor</title>
+</head>
+<body>
+    <header>
+        <h1>Cadastro de Professor</h1>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="cadastro_professor.html">Cadastrar Professor</a></li>
+                <li><a href="cadastro_turma.html">Cadastrar Turma</a></li>
+                <li><a href="cadastro_aluno.html">Cadastrar Aluno</a></li>
+                <li><a href="listar_turmas.html">Listar Turmas</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <form id="ProfessorForm">
+        <label for="name">Nome:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="age">Idade:</label><br>
+        <input type="number" id="age" name="age" required><br><br>
+
+        <label for="materia">Matéria:</label><br>
+        <input type="text" id="materia" name="materia" required><br><br>
+
+        <label for="observacoes">observacoes:</label><br>
+        <input type="text" id="observacoes" name="observacoes" required><br><br>
+
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <p id="responseMessage"></p>
+
+    <script>
+        document.getElementById('ProfessorForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+            const materia = document.getElementById('materia').value;
+            const observacoes = document.getElementById('observacoes').value;  
+
+            fetch('http://127.0.0.1:5000/professores/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, age, materia, observacoes })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('responseMessage');
+                document.getElementById('ProfessorForm').reset();
+            })
+            .catch(error => {
+                console.error('Erro ao cadastrar o professor:', error);
+                document.getElementById('responseMessage');
+            });
+        });
+    </script>
+</body>
+</html>

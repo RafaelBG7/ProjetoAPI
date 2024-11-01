@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Cadastro de Turma</title>
+</head>
+<body>
+    <header>
+        <h1>Cadastro de Turma</h1>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="cadastro_professor.html">Cadastrar Professor</a></li>
+                <li><a href="cadastro_turma.html">Cadastrar Turma</a></li>
+                <li><a href="cadastro_aluno.html">Cadastrar Aluno</a></li>
+                <li><a href="listar_turmas.html">Listar Turmas</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <form id="TurmaForm">
+        <label for="descricao">Descrição:</label><br>
+        <input type="text" id="descricao" name="descricao" required><br><br>
+
+        <label for="professor_id">Professor:</label>
+        <select id="professor_id" name="professor_id" required></select><br><br>
+
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <p id="responseMessage"></p>
+
+    <script>
+        document.getElementById('TurmaForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const descricao = document.getElementById('descricao').value;
+            const professor_id = document.getElementById('professor_id').value;
+
+            fetch('http://127.0.0.1:5000/turmas/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ descricao, professor_id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('responseMessage');
+                document.getElementById('TurmaForm').reset();
+            })
+            .catch(error => {
+                console.error('Erro ao cadastrar a turma:', error);
+                document.getElementById('responseMessage');
+            });
+        });
+
+        // Fetch professores to populate the select field
+        fetch('http://127.0.0.1:5000/professores/list')
+            .then(response => response.json())
+            .then(data => {
+                const professorSelect = document.getElementById('professor_id');
+                data.forEach(professor => {
+                    const option = document.createElement('option');
+                    option.value = professor.id;
+                    option.text = professor.name;
+                    professorSelect.add(option);
+                });
+            })
+            .catch(error => console.error('Erro ao carregar os professores:', error));
+    </script>
+</body>
+</html>

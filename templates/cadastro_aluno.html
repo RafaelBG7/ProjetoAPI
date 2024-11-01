@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Cadastro de Aluno</title>
+</head>
+<body>
+    <header>
+        <h1>Cadastro de Aluno</h1>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="cadastro_professor.html">Cadastrar Professor</a></li>
+                <li><a href="cadastro_turma.html">Cadastrar Turma</a></li>
+                <li><a href="cadastro_aluno.html">Cadastrar Aluno</a></li>
+                <li><a href="listar_turmas.html">Listar Turmas</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <form id="AlunoForm">
+        <label for="name">Nome:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="age">Idade:</label><br>
+        <input type="number" id="age" name="age" required><br><br>
+
+        <label for="data_nascimento">Data de Nascimento:</label>
+        <input type="date" id="data_nascimento" name="data_nascimento" required><br><br>
+
+        <label for="nota_primeiro_bimestre">Nota Primeiro Bimestre:</label>
+        <input type="number" step="0.1" id="nota_primeiro_bimestre" name="nota_primeiro_bimestre" required><br><br>
+
+        <label for="nota_segundo_bimestre">Nota Segundo Bimestre:</label>
+        <input type="number" step="0.1" id="nota_segundo_bimestre" name="nota_segundo_bimestre" required><br><br>
+
+        <label for="media_final">Média Final:</label>
+        <input type="number" step="0.1" id="media_final" name="media_final" readonly><br><br>
+
+        <label for="turma_id">Turma:</label>
+        <select id="turma_id" name="turma_id" required></select><br><br>
+
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <p id="responseMessage"></p>
+
+    <script>
+        function calcularMediaFinal() {
+            const notaPrimeiroBimestre = parseFloat(document.getElementById('nota_primeiro_bimestre').value) || 0;
+            const notaSegundoBimestre = parseFloat(document.getElementById('nota_segundo_bimestre').value) || 0;
+            const mediaFinal = (notaPrimeiroBimestre + notaSegundoBimestre) / 2;
+            document.getElementById('media_final').value = mediaFinal.toFixed(1);
+        }
+
+        document.getElementById('nota_primeiro_bimestre').addEventListener('input', calcularMediaFinal);
+        document.getElementById('nota_segundo_bimestre').addEventListener('input', calcularMediaFinal);
+
+        document.getElementById('AlunoForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+            const data_nascimento = document.getElementById('data_nascimento').value;
+            const nota_primeiro_bimestre = document.getElementById('nota_primeiro_bimestre').value;
+            const nota_segundo_bimestre = document.getElementById('nota_segundo_bimestre').value;
+            const media_final = document.getElementById('media_final').value;
+            const turma_id = document.getElementById('turma_id').value;
+
+            fetch('http://127.0.0.1:5000/alunos/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, age, data_nascimento, nota_primeiro_bimestre, nota_segundo_bimestre, media_final, turma_id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('responseMessage').innerText = "Aluno cadastrado com sucesso!";
+                document.getElementById('AlunoForm').reset();
+                document.getElementById('media_final').value = ''; // Limpar o campo de média final
+            })
+            .catch(error => {
+                console.error('Erro ao cadastrar o aluno:', error);
+                document.getElementById('responseMessage').innerText = "Erro ao cadastrar o aluno.";
+            });
+        });
+
+        // Fetch turmas to populate the select field
+        fetch('http://127.0.0.1:5000/turmas/list')
+            .then(response => response.json())
+            .then(data => {
+                const turmaSelect = document.getElementById('turma_id');
+                data.forEach(turma => {
+                    const option = document.createElement('option');
+                    option.value = turma.id;
+                    option.text = turma.descricao;
+                    turmaSelect.add(option);
+                });
+            })
+            .catch(error => console.error('Erro ao carregar as turmas:', error));
+    </script>
+</body>
+</html>
